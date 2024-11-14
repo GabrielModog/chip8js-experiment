@@ -24,11 +24,9 @@ export default class CPU {
   }
 
   cycle() {
-    for(let i = 0; i < this.speed; i++) {
-      if(!this.paused) {
-        let opcode = (this.memory[this.pc] << 8 | this.memory[this.pc + 1])
-        this.instructions(opcode)
-      }
+    if(!this.paused) {
+      let opcode = (this.memory[this.pc] << 8 | this.memory[this.pc + 1])
+      this.instructions(opcode)
     }
     if(this.delayTimer > 0) {
       this.delayTimer -= 1
@@ -63,12 +61,12 @@ export default class CPU {
    * @param {number} opcode - hexadecimal number
    */
   instructions(opcode) {
+    this.increment_pc()
+
     let x = (opcode & 0x0f00) >> 8
     let y = (opcode & 0x00f0) >> 4
 
-    this.increment_pc()
-
-    switch(opcode) {
+    switch(opcode & 0xf000) {
       case 0x0: {
         switch(opcode) {
           case 0x00e0: {
@@ -79,41 +77,41 @@ export default class CPU {
           } break
         }
       } break
-      case 0x1: {
+      case 0x1000: {
         const nnn = (opcode & 0xfff)
         this.pc = nnn
       } break
-      case 0x2: {
+      case 0x2000: {
         const nnn = (opcode & 0xfff)
         this.stack.push(this.pc)
         this.pc = nnn
       } break
-      case 0x3: {
+      case 0x3000: {
         const bytekk = (opcode & 0xff)
         if(this.registers[x] === bytekk) {
           this.increment_pc()
         }
       } break
-      case 0x4: {
+      case 0x4000: {
         const bytekk = (opcode & 0xff)
         if(this.registers[x] !== bytekk) {
           this.increment_pc()
         }
       } break
-      case 0x5: {
+      case 0x5000: {
         if(this.registers[x] === this.registers[y]) {
           this.increment_pc()
         }
       } break
-      case 0x6: {
+      case 0x6000: {
         const bytekk = (opcode & 0xff)
         this.registers[x] = bytekk
       } break
-      case 0x7: {
+      case 0x7000: {
         const bytekk = (opcode & 0xff)
         this.registers[x] += bytekk
       } break
-      case 0x8: {
+      case 0x8000: {
         const mode = (opcode & 0xf)
         switch(mode) {
           case 0x0: {
@@ -152,7 +150,7 @@ export default class CPU {
             if(this.registers[y] > this.registers[x]) {
               this.registers[0xf] = 1
             }
-            this.register[x] = this.registers[y] - this.registers[x]
+            this.registers[x] = this.registers[y] - this.registers[x]
           } break
           case 0xe: {
             this.registers[0xf] = (this.registers[x] & 0x80) >> 7
@@ -160,26 +158,26 @@ export default class CPU {
           } break
         }
       } break
-      case 0x9: {
+      case 0x9000: {
         if(this.registers[x] !== this.registers[y]) {
           this.increment_pc()
         }
       } break
-      case 0xa: {
+      case 0xa000: {
         const nnn = (opcode & 0xfff)
         this.i = nnn
       } break
-      case 0xb: {
+      case 0xb000: {
         const nnn = (opcode & 0xfff)
         this.pc = this.registers[0] + nnn
       } break
-      case 0xc: {
+      case 0xc000: {
         const bytekk = (opcode & 0xff)
         const rand = this.rand()
         this.registers[x] = rand & bytekk
       } break
-      case 0xd: {
-        this.register[0xf] = 0 // set VF = collision
+      case 0xd000: {
+        this.registers[0xf] = 0 // set VF = collision
 
         const msb = 0x80 // most significant byte
         const width = 8 // constant width for chip-8 sprites
@@ -188,7 +186,7 @@ export default class CPU {
         for(let row = 0; row < nByte; row++) {
           let pixel = this.memory[this.i + row]
           for(let col = 0; col < width; col++) {
-            if(pixel & (msb >> x) !== 0) {
+            if(pixel > 0) {
               // wraps display
               let xx = (x + col) % VIDEO_WIDTH
               let yy = (y + row) % VIDEO_HEIGHT
@@ -202,7 +200,7 @@ export default class CPU {
           }
         }
       } break
-      case 0xe: {
+      case 0xe000: {
         const mode = (opcode & 0xff)
         switch(mode) {
           case 0x9e: {
@@ -217,7 +215,7 @@ export default class CPU {
           } break
         }
       } break
-      case 0xf: {
+      case 0xf000: {
         const mode = (opcode & 0xff)
         switch(mode) {
           case 0x07: {
