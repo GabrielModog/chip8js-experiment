@@ -1,28 +1,12 @@
-export const START_ADDRESS  = 0x200
-export const VIDEO_WIDTH    = 64
-export const VIDEO_HEIGHT   = 32
+import { VIDEO_WIDTH, VIDEO_HEIGHT, START_ADDRESS, FONTSET } from "./constants.js"
+import Keyboard from "./keyboard.js"
 
-export const FONTSET = [
-  0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
-  0x20, 0x60, 0x20, 0x20, 0x70, // 1
-  0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
-  0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
-  0x90, 0x90, 0xF0, 0x10, 0x10, // 4
-  0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
-  0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
-  0xF0, 0x10, 0x20, 0x40, 0x40, // 7
-  0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
-  0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
-  0xF0, 0x90, 0xF0, 0x90, 0x90, // A
-  0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
-  0xF0, 0x80, 0x80, 0x80, 0xF0, // C
-  0xE0, 0x90, 0x90, 0x90, 0xE0, // D
-  0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-  0xF0, 0x80, 0xF0, 0x80, 0x80  // F
-]
-
-class CPU {
-  constructor() {
+export default class CPU {
+  /**
+   * Handle Devices
+   * @param {Keyboard} keyboard
+   */
+  constructor(keyboard) {
     this.memory = new Uint8Array(4096)
     this.registers = new Uint8Array(16)
     this.stack = new Array()
@@ -34,6 +18,9 @@ class CPU {
     this.soundTimer = 0
     this.paused = false
     this.speed = 10
+
+    // devices
+    this.keyboard = keyboard
   }
 
   /**
@@ -177,17 +164,40 @@ class CPU {
         this.registers[x] = rand & bytekk
       } break
       case 0xd: {
+        this.register[0xf] = 0 // set VF = collision
 
+        const msb = 0x80 // most significant byte
+        const width = 8 // constant width for chip-8 sprites
+        let nByte = (opcode & 0xf) // height
+
+        for(let row = 0; row < nByte; row++) {
+          let pixel = this.memory[this.i + row]
+          for(let col = 0; col < width; col++) {
+            if(pixel & (msb >> x) !== 0) {
+              let xx = (x + col) % VIDEO_WIDTH
+              let yy = (y + row) % VIDEO_HEIGHT
+              let idx = xx + yy * VIDEO_WIDTH
+              this.video[idx] ^= 1
+              if(this.video[idx] === 0) {
+                this.registers[0xf] = 1
+              }
+            }
+          }
+        }
       } break
       case 0xe: {
         const mode = (opcode & 0xff)
         switch(mode) {
           case 0x9e: {
-            
+            if(this.keyboard.isKeyPressed(this.v[x])) {
+              this.increment_pc()
+            }
           } break
           case 0xa1: {
-
-          } reak
+            if(!this.keyboard.isKeyPressed(this.v[x])) {
+              this.increment_pc()
+            }
+          } break
         }
       } break
       case 0xf: {
