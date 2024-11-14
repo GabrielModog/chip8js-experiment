@@ -23,6 +23,21 @@ export default class CPU {
     this.keyboard = keyboard
   }
 
+  cycle() {
+    for(let i = 0; i < this.speed; i++) {
+      if(!this.paused) {
+        let opcode = (this.memory[this.pc] << 8 | this.memory[this.pc + 1])
+        this.instructions(opcode)
+      }
+    }
+    if(this.delayTimer > 0) {
+      this.delayTimer -= 1
+    }
+    if(this.soundTimer > 0) {
+      this.soundTimer -= 1
+    }
+  }
+
   /**
    * increment_pc()
    * - an util method to increament Program Counter
@@ -174,10 +189,12 @@ export default class CPU {
           let pixel = this.memory[this.i + row]
           for(let col = 0; col < width; col++) {
             if(pixel & (msb >> x) !== 0) {
+              // wraps display
               let xx = (x + col) % VIDEO_WIDTH
               let yy = (y + row) % VIDEO_HEIGHT
               let idx = xx + yy * VIDEO_WIDTH
-              this.video[idx] ^= 1
+              this.video[idx] ^= 1  // xor sprites
+              // if this causes any pixels to be erased, VF is set to 1
               if(this.video[idx] === 0) {
                 this.registers[0xf] = 1
               }
