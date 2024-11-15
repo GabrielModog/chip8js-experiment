@@ -14,10 +14,12 @@ class Chip8 {
   constructor() {
     this.cpu = new CPU(keyboard)
 
+    this.scale = 10
     this.canvas = document.getElementById("app")
-    this.canvas.width = VIDEO_WIDTH * 4
-    this.canvas.height = VIDEO_HEIGHT * 4
     this.ctx = this.canvas.getContext("2d")
+
+    this.canvas.width = VIDEO_WIDTH * this.scale
+    this.canvas.height = VIDEO_HEIGHT * this.scale
   }
 
   loadFontsetInMemory() {
@@ -47,14 +49,13 @@ class Chip8 {
   }
 
   tempRender() {
-    this.ctx.clearRect(0, 0, this.canvas.clientWidth, this.canvas.height)
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
     for (let i = 0; i < VIDEO_WIDTH * VIDEO_HEIGHT; i++) {
-      let x = (i % VIDEO_WIDTH) * 4
-      let y = Math.floor(i / VIDEO_WIDTH) * 4
-
-      if (this.cpu.video[i]) {
+      let x = (i % VIDEO_WIDTH) * this.scale
+      let y = Math.floor(i / VIDEO_WIDTH) * this.scale
+      if (this.cpu.video[i] > 0) {
         this.ctx.fillStyle = "#000"
-        this.ctx.fillRect(x, y, 4, 4)
+        this.ctx.fillRect(x, y, this.scale, this.scale)
       }
     }
   }
