@@ -178,24 +178,25 @@ export default class CPU {
       } break
       case 0xd000: {
         this.registers[0xf] = 0 // set VF = collision
-
+        
         const msb = 0x80 // most significant byte
         const width = 8 // constant width for chip-8 sprites
-        let nByte = (opcode & 0xf) // height
+        const xReg = this.registers[x]
+        const yReg = this.registers[y]
+        let height = opcode & 0xf // n-byte
 
-        for(let row = 0; row < nByte; row++) {
+        for(let row = 0; row < height; row++) {
           let pixel = this.memory[this.i + row]
           for(let col = 0; col < width; col++) {
-            if(pixel > 0) {
-              // wraps display
-              let xx = (x + col) % VIDEO_WIDTH
-              let yy = (y + row) % VIDEO_HEIGHT
-              let idx = xx + yy * VIDEO_WIDTH
-              this.video[idx] ^= 1  // xor sprites
-              // if this causes any pixels to be erased, VF is set to 1
-              if(this.video[idx] === 0) {
+            if((pixel & (msb >> col)) !== 0) {
+              const xx = (xReg + col) % VIDEO_WIDTH
+              const yy = (yReg + row) % VIDEO_HEIGHT
+              const idx = xx + (yy * VIDEO_WIDTH)
+              // let idx = ((xReg + col) + ((yReg + row) * VIDEO_WIDTH))
+              if(this.video[idx] === 1) {
                 this.registers[0xf] = 1
               }
+              this.video[idx] ^= 1
             }
           }
         }
@@ -222,7 +223,7 @@ export default class CPU {
             this.registers[x] = this.delayTimer
           } break
           case 0x0a: {
-
+            this.paused = true
           } break
           case 0x15: {
             this.delayTimer = this.registers[x]
