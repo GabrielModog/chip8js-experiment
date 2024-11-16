@@ -1,11 +1,13 @@
 import { START_ADDRESS, VIDEO_HEIGHT, VIDEO_WIDTH } from "./constants.js"
 import CPU from "./cpu.js"
+import Display from "./display.js"
 import Keyboard from "./keyboard.js"
 import Sound from "./sound.js"
 
 // devices
 const keyboard = new Keyboard()
 const sound = new Sound()
+const display = new Display()
 
 class Chip8 {
   /**
@@ -14,7 +16,7 @@ class Chip8 {
   cpu
 
   constructor() {
-    this.cpu = new CPU(keyboard, sound)
+    this.cpu = new CPU(keyboard, sound, display)
 
     this.scale = 10
     this.canvas = document.getElementById("app")
@@ -44,24 +46,6 @@ class Chip8 {
     this.loadRomBufferInMemory(new Uint8Array(data))
   }
 
-  tempRender() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
-    for (let x = 0; x < VIDEO_WIDTH; x++) {
-      for (let y = 0; y < VIDEO_HEIGHT; y++) {
-        const pixel = this.cpu.video[x + y * VIDEO_WIDTH]
-        if (pixel) {
-          this.ctx.fillStyle = "#000"
-          this.ctx.fillRect(
-            x * this.scale,
-            y * this.scale,
-            this.scale,
-            this.scale
-          )
-        }
-      }
-    }
-  }
-
   init() {
     this.cpu.loadFontsetInMemory()
     this.fetchRom()
@@ -71,7 +55,6 @@ class Chip8 {
     // TODO: remove setInterval and use requestAnimationFrame instead
     setInterval(() => {
       this.cpu.cycle()
-      this.tempRender()
     }, 50)
   }
 }
