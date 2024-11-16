@@ -1,21 +1,13 @@
 import { START_ADDRESS, VIDEO_HEIGHT, VIDEO_WIDTH } from "./constants.js"
 import CPU from "./cpu.js"
-import Display from "./display.js"
-import Keyboard from "./keyboard.js"
-import Sound from "./sound.js"
 
-// devices
-const keyboard = new Keyboard()
-const sound = new Sound()
-const display = new Display()
-
-class Chip8 {
+export default class Chip8 {
   /**
    * @type {CPU}
    */
   cpu
 
-  constructor() {
+  constructor(keyboard, sound, display) {
     this.cpu = new CPU(keyboard, sound, display)
 
     this.scale = 10
@@ -58,7 +50,3 @@ class Chip8 {
     }, 50)
   }
 }
-
-const chip8 = new Chip8()
-chip8.init()
-chip8.run()
