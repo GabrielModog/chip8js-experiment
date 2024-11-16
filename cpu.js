@@ -1,12 +1,14 @@
 import { VIDEO_WIDTH, VIDEO_HEIGHT, START_ADDRESS, FONTSET } from "./constants.js"
 import Keyboard from "./keyboard.js"
+import Sound from "./sound.js"
 
 export default class CPU {
   /**
    * Handle Devices
    * @param {Keyboard} keyboard
+   * @param {Sound} sound
    */
-  constructor(keyboard) {
+  constructor(keyboard, sound) {
     this.memory = new Uint8Array(4096)
     this.registers = new Uint8Array(16)
     this.stack = new Array()
@@ -21,18 +23,25 @@ export default class CPU {
 
     // devices
     this.keyboard = keyboard
+    this.sound = sound
   }
 
   cycle() {
     if(!this.paused) {
       let opcode = (this.memory[this.pc] << 8 | this.memory[this.pc + 1])
       this.instructions(opcode)
+      if(this.delayTimer > 0) {
+        this.delayTimer -= 1
+      }
+      if(this.soundTimer > 0) {
+        this.soundTimer -= 1
+      }
     }
-    if(this.delayTimer > 0) {
-      this.delayTimer -= 1
-    }
+
     if(this.soundTimer > 0) {
-      this.soundTimer -= 1
+      this.sound.play()
+    } else {
+      this.sound.stop()
     }
   }
 
