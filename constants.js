@@ -1,4 +1,5 @@
 export const START_ADDRESS  = 0x200
+export const FONT_START_ADDRESS = 0x50
 export const VIDEO_WIDTH    = 64
 export const VIDEO_HEIGHT   = 32
 
