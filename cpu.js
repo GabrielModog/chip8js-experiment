@@ -1,4 +1,4 @@
-import { VIDEO_WIDTH, VIDEO_HEIGHT, START_ADDRESS, FONTSET } from "./constants.js"
+import { VIDEO_WIDTH, VIDEO_HEIGHT, START_ADDRESS, FONTSET, FONT_START_ADDRESS } from "./constants.js"
 import Keyboard from "./keyboard.js"
 import Sound from "./sound.js"
 
@@ -24,6 +24,12 @@ export default class CPU {
     // devices
     this.keyboard = keyboard
     this.sound = sound
+  }
+
+  loadFontsetInMemory() {
+    for(let i = 0; i < FONTSET.length; i++) {
+      this.memory[FONT_START_ADDRESS + i] = FONTSET[i]
+    }
   }
 
   cycle() {
