@@ -1,4 +1,5 @@
 import { VIDEO_WIDTH, VIDEO_HEIGHT, START_ADDRESS, FONTSET, FONT_START_ADDRESS } from "./constants.js"
+import Display from "./display.js"
 import Keyboard from "./keyboard.js"
 import Sound from "./sound.js"
 
@@ -7,8 +8,9 @@ export default class CPU {
    * Handle Devices
    * @param {Keyboard} keyboard
    * @param {Sound} sound
+   * @param {Display} display
    */
-  constructor(keyboard, sound) {
+  constructor(keyboard, sound, display) {
     this.memory = new Uint8Array(4096)
     this.registers = new Uint8Array(16)
     this.stack = new Array()
@@ -24,6 +26,7 @@ export default class CPU {
     // devices
     this.keyboard = keyboard
     this.sound = sound
+    this.display = display
   }
 
   loadFontsetInMemory() {
@@ -49,6 +52,8 @@ export default class CPU {
     } else {
       this.sound.stop()
     }
+
+    this.display.render(this.video)
   }
 
   /**
