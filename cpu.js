@@ -220,12 +220,12 @@ export default class CPU {
         const mode = (opcode & 0xff)
         switch(mode) {
           case 0x9e: {
-            if(this.keyboard.isKeyPressed(this.v[x])) {
+            if(this.keyboard.isKeyPressed(this.registers[x])) {
               this.increment_pc()
             }
           } break
           case 0xa1: {
-            if(!this.keyboard.isKeyPressed(this.v[x])) {
+            if(!this.keyboard.isKeyPressed(this.registers[x])) {
               this.increment_pc()
             }
           } break
