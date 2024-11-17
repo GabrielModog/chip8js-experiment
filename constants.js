@@ -2,6 +2,7 @@ export const START_ADDRESS  = 0x200
 export const FONT_START_ADDRESS = 0x50
 export const VIDEO_WIDTH    = 64
 export const VIDEO_HEIGHT   = 32
+export const FPS = 60
 
 export const FONTSET = [
   0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
