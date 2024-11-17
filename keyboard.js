@@ -11,14 +11,14 @@ export default class Keyboard {
   */
   keysPressed
   /**
-   * Callback function to execute next key
+   * Callback function to execute next pressed key
    * @type {Function?}
    */
-  onNextKeyDown
+  setPressedKey
   
   constructor() {
     this.keysPressed = {}
-    this.onNextKeyDown = null
+    this.setPressedKey = null
     this.init()
   }
 }
@@ -40,9 +40,9 @@ Keyboard.prototype.onKeyDown = function(event) {
   const keyCode = event?.keyCode || event?.key.toUpperCase().charCodeAt(0)
   const key = KEYS[keyCode]
   this.keysPressed[key] = true
-  if(this.onNextKeyDown && key) {
-    this.onNextKeyDown(key)
-    this.onNextKeyDown = null
+  if(this.setPressedKey && key) {
+    this.setPressedKey(key)
+    this.setPressedKey = null
   }
 }
 

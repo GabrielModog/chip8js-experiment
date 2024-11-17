@@ -30,24 +30,24 @@ export default class CPU {
   }
 
   loadFontsetInMemory() {
-    for(let i = 0; i < FONTSET.length; i++) {
+    for (let i = 0; i < FONTSET.length; i++) {
       this.memory[FONT_START_ADDRESS + i] = FONTSET[i]
     }
   }
 
   cycle() {
-    if(!this.paused) {
+    if (!this.paused) {
       let opcode = (this.memory[this.pc] << 8 | this.memory[this.pc + 1])
       this.instructions(opcode)
-      if(this.delayTimer > 0) {
+      if (this.delayTimer > 0) {
         this.delayTimer -= 1
       }
-      if(this.soundTimer > 0) {
+      if (this.soundTimer > 0) {
         this.soundTimer -= 1
       }
     }
 
-    if(this.soundTimer > 0) {
+    if (this.soundTimer > 0) {
       this.sound.play()
     } else {
       this.sound.stop()
@@ -72,7 +72,7 @@ export default class CPU {
    * clearDisplay()
    * - clear video display
    */
-  clearDisplay(){
+  clearDisplay() {
     this.video = new Array(VIDEO_WIDTH * VIDEO_HEIGHT)
   }
 
@@ -86,9 +86,9 @@ export default class CPU {
     let x = (opcode & 0x0f00) >> 8
     let y = (opcode & 0x00f0) >> 4
 
-    switch(opcode & 0xf000) {
+    switch (opcode & 0xf000) {
       case 0x0: {
-        switch(opcode) {
+        switch (opcode) {
           case 0x00e0: {
             this.clearDisplay()
           } break
@@ -108,18 +108,18 @@ export default class CPU {
       } break
       case 0x3000: {
         const bytekk = (opcode & 0xff)
-        if(this.registers[x] === bytekk) {
+        if (this.registers[x] === bytekk) {
           this.increment_pc()
         }
       } break
       case 0x4000: {
         const bytekk = (opcode & 0xff)
-        if(this.registers[x] !== bytekk) {
+        if (this.registers[x] !== bytekk) {
           this.increment_pc()
         }
       } break
       case 0x5000: {
-        if(this.registers[x] === this.registers[y]) {
+        if (this.registers[x] === this.registers[y]) {
           this.increment_pc()
         }
       } break
@@ -133,7 +133,7 @@ export default class CPU {
       } break
       case 0x8000: {
         const mode = (opcode & 0xf)
-        switch(mode) {
+        switch (mode) {
           case 0x0: {
             this.registers[x] = this.registers[y]
           } break
@@ -149,14 +149,14 @@ export default class CPU {
           case 0x4: {
             this.registers[0xf] = 0
             const sum = this.registers[x] + this.registers[y]
-            if(sum > 0xff) {
+            if (sum > 0xff) {
               this.registers[0xf] = 1
             }
             this.registers[x] = sum
           } break
           case 0x5: {
             this.registers[0xf] = 0
-            if(this.registers[x] > this.registers[y]){
+            if (this.registers[x] > this.registers[y]) {
               this.registers[0xf] = 1
             }
             this.registers[x] -= this.registers[y]
@@ -167,7 +167,7 @@ export default class CPU {
           } break
           case 0x7: {
             this.registers[0xf] = 0
-            if(this.registers[y] > this.registers[x]) {
+            if (this.registers[y] > this.registers[x]) {
               this.registers[0xf] = 1
             }
             this.registers[x] = this.registers[y] - this.registers[x]
@@ -179,7 +179,7 @@ export default class CPU {
         }
       } break
       case 0x9000: {
-        if(this.registers[x] !== this.registers[y]) {
+        if (this.registers[x] !== this.registers[y]) {
           this.increment_pc()
         }
       } break
@@ -198,22 +198,22 @@ export default class CPU {
       } break
       case 0xd000: {
         this.registers[0xf] = 0 // set VF = collision
-        
+
         const msb = 0x80 // most significant byte
         const width = 8 // constant width for chip-8 sprites
         const xReg = this.registers[x]
         const yReg = this.registers[y]
         let height = opcode & 0xf // n-byte
 
-        for(let row = 0; row < height; row++) {
+        for (let row = 0; row < height; row++) {
           let pixel = this.memory[this.i + row]
-          for(let col = 0; col < width; col++) {
-            if((pixel & (msb >> col)) !== 0) {
+          for (let col = 0; col < width; col++) {
+            if ((pixel & (msb >> col)) !== 0) {
               const xx = (xReg + col) % VIDEO_WIDTH
               const yy = (yReg + row) % VIDEO_HEIGHT
               const idx = xx + (yy * VIDEO_WIDTH)
               // let idx = ((xReg + col) + ((yReg + row) * VIDEO_WIDTH))
-              if(this.video[idx] === 1) {
+              if (this.video[idx] === 1) {
                 this.registers[0xf] = 1
               }
               this.video[idx] ^= 1
@@ -223,14 +223,14 @@ export default class CPU {
       } break
       case 0xe000: {
         const mode = (opcode & 0xff)
-        switch(mode) {
+        switch (mode) {
           case 0x9e: {
-            if(this.keyboard.isKeyPressed(this.registers[x])) {
+            if (this.keyboard.isKeyPressed(this.registers[x])) {
               this.increment_pc()
             }
           } break
           case 0xa1: {
-            if(!this.keyboard.isKeyPressed(this.registers[x])) {
+            if (!this.keyboard.isKeyPressed(this.registers[x])) {
               this.increment_pc()
             }
           } break
@@ -238,12 +238,16 @@ export default class CPU {
       } break
       case 0xf000: {
         const mode = (opcode & 0xff)
-        switch(mode) {
+        switch (mode) {
           case 0x07: {
             this.registers[x] = this.delayTimer
           } break
           case 0x0a: {
             this.paused = true
+            this.keyboard.setPressedKey = (key) => {
+              this.registers[x] = key
+              this.paused = false
+            }
           } break
           case 0x15: {
             this.delayTimer = this.registers[x]
@@ -264,12 +268,12 @@ export default class CPU {
             this.memory[this.i + 2] = Math.floor(value % 10)
           } break
           case 0x55: {
-            for(let registerIndex = 0; registerIndex <= x; registerIndex++) {
+            for (let registerIndex = 0; registerIndex <= x; registerIndex++) {
               this.memory[this.i + registerIndex] = this.registers[registerIndex]
             }
           } break
           case 0x65: {
-            for(let registerIndex = 0; registerIndex <= x; registerIndex++) {
+            for (let registerIndex = 0; registerIndex <= x; registerIndex++) {
               this.registers[registerIndex] = this.memory[this.i + registerIndex]
             }
           } break

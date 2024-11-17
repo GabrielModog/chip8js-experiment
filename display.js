@@ -18,12 +18,15 @@ export default class Display {
 
     this.scale = scale
     this.pixelSize = pixelSize
+    this.canvas.width = VIDEO_WIDTH * this.scale
+    this.canvas.height = VIDEO_HEIGHT * this.scale
   }
   /**
    * Display Buffer
    * @param {Array} video - display buffer
    */
   render(video) {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
     for (let x = 0; x < VIDEO_WIDTH; x++) {
       for (let y = 0; y < VIDEO_HEIGHT; y++) {
         const pixel = video[x + y * VIDEO_WIDTH]

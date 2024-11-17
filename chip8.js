@@ -1,4 +1,4 @@
-import { START_ADDRESS, VIDEO_HEIGHT, VIDEO_WIDTH } from "./constants.js"
+import { START_ADDRESS } from "./constants.js"
 import CPU from "./cpu.js"
 
 export default class Chip8 {
@@ -9,13 +9,6 @@ export default class Chip8 {
 
   constructor(keyboard, sound, display) {
     this.cpu = new CPU(keyboard, sound, display)
-
-    this.scale = 10
-    this.canvas = document.getElementById("app")
-    this.ctx = this.canvas.getContext("2d")
-
-    this.canvas.width = VIDEO_WIDTH * this.scale
-    this.canvas.height = VIDEO_HEIGHT * this.scale
   }
 
   /**
@@ -32,7 +25,7 @@ export default class Chip8 {
    * fetchRom(romName)
    * @param {string} romName
    */
-  async fetchRom(romName = "chip8picture.ch8") {
+  async fetchRom(romName = "blitz.ch8") {
     const response = await fetch(`roms/${romName}`)
     const data = await response.arrayBuffer()
     this.loadRomBufferInMemory(new Uint8Array(data))
