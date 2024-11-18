@@ -1,8 +1,8 @@
-import Chip8 from "./src/chip8.js"
+import Chip8 from "./chip8.js"
 
-import Display from "./src/display.js"
-import Keyboard from "./src/keyboard.js"
-import Sound from "./src/sound.js"
+import Display from "./display.js"
+import Keyboard from "./keyboard.js"
+import Sound from "./sound.js"
 
 // devices
 const keyboard = new Keyboard()
