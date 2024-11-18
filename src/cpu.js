@@ -87,7 +87,7 @@ export default class CPU {
     let y = (opcode & 0x00f0) >> 4
 
     switch (opcode & 0xf000) {
-      case 0x0: {
+      case 0x0000: {
         switch (opcode) {
           case 0x00e0: {
             this.clearDisplay()
@@ -209,8 +209,8 @@ export default class CPU {
           let pixel = this.memory[this.i + row]
           for (let col = 0; col < width; col++) {
             if ((pixel & (msb >> col)) !== 0) {
-              const xx = (xReg + col) % VIDEO_WIDTH
-              const yy = (yReg + row) % VIDEO_HEIGHT
+              const xx = (xReg + col)
+              const yy = (yReg + row)
               const idx = xx + (yy * VIDEO_WIDTH)
               // let idx = ((xReg + col) + ((yReg + row) * VIDEO_WIDTH))
               if (this.video[idx] === 1) {
@@ -244,7 +244,7 @@ export default class CPU {
           } break
           case 0x0a: {
             this.paused = true
-            this.keyboard.setPressedKey = (key) => {
+            this.keyboard.nextKeyCallback = (key) => {
               this.registers[x] = key
               this.paused = false
             }

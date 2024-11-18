@@ -1,5 +1,3 @@
-import { KEYS } from "./constants.js"
-
 /**
  * Handle user inputs
  * @class Keyboard
@@ -14,35 +12,42 @@ export default class Keyboard {
    * Callback function to execute next pressed key
    * @type {Function?}
    */
-  setPressedKey
-  
-  constructor() {
+  nextKeyCallback
+
+  constructor(keysMap) {
+    this.keysMap = keysMap
     this.keysPressed = {}
-    this.setPressedKey = null
+    this.nextKeyCallback = null
     this.init()
+  }
+
+  init() {
+    window.addEventListener("keydown", this.onKeyDown.bind(this), false)
+    window.addEventListener("keyup", this.onKeyRelease.bind(this), false)
   }
 }
 
 /**
  * isKeyPressed
- * @param {number} keyCode - should be a valid keycode
+ * @param {number} key - should be a valid key (chip-8 format)
  * @returns {boolean}
  */
-Keyboard.prototype.isKeyPressed = function(keyCode) {
-  return this.keysPressed[keyCode]
+Keyboard.prototype.isKeyPressed = function (key) {
+  return this.keysPressed[key]
 }
 
 /**
  * onKeyDown(event)
  * @param {KeyboardEvent} event 
  */
-Keyboard.prototype.onKeyDown = function(event) {
-  const keyCode = event?.keyCode || event?.key.toUpperCase().charCodeAt(0)
-  const key = KEYS[keyCode]
+Keyboard.prototype.onKeyDown = function (event) {
+  const keyCode = event?.keyCode
+  const key = this.keysMap[keyCode]
+  if(!key) return
   this.keysPressed[key] = true
-  if(this.setPressedKey && key) {
-    this.setPressedKey(key)
-    this.setPressedKey = null
+  if (this.nextKeyCallback && key) {
+    this.nextKeyCallback(key)
+    this.nextKeyCallback = null
   }
 }
 
@@ -50,14 +55,9 @@ Keyboard.prototype.onKeyDown = function(event) {
  * onKeyRelease(event)
  * @param {KeyboardEvent} event 
  */
-Keyboard.prototype.onKeyRelease = function(event) {
+Keyboard.prototype.onKeyRelease = function (event) {
   // keyCode it's deprecated in some browsers
-  const keyCode = event?.keyCode || event?.key.charCodeAt(0)
-  const key = KEYS[keyCode]
+  const keyCode = event?.keyCode
+  const key = this.keysMap[keyCode]
   this.keysPressed[key] = false
-}
-
-Keyboard.prototype.init = function() {
-  window.addEventListener("keydown", this.onKeyDown.bind(this), false)
-  window.addEventListener("keyup", this.onKeyRelease.bind(this), false)
 }

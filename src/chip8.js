@@ -10,6 +10,7 @@ export default class Chip8 {
   constructor(keyboard, sound, display) {
     this.cpu = new CPU(keyboard, sound, display)
 
+    this.freeze = false
     this.interval = 0
     this.now = 0
     this.lastTime = 0
@@ -30,8 +31,8 @@ export default class Chip8 {
    * fetchRom(romName)
    * @param {string} romName
    */
-  async fetchRom(romName = "corax.ch8") {
-    const response = await fetch(`roms/${romName}`)
+  async fetchRom(romName = "blitz.ch8") {
+    const response = await fetch(`public/roms/${romName}`)
     const data = await response.arrayBuffer()
     this.loadRomBufferInMemory(new Uint8Array(data))
   }
@@ -47,8 +48,8 @@ export default class Chip8 {
   run() {
     this.now = Date.now()
     this.elapsed = this.now - this.lastTime
-    if(this.elapsed > this.interval) {
-      this.lastTime = this.now
+
+    if(this.elapsed >= this.interval) {
       this.cpu.cycle()
     }
     requestAnimationFrame(this.run.bind(this))
