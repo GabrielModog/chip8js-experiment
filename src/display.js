@@ -31,7 +31,7 @@ export default class Display {
       for (let y = 0; y < VIDEO_HEIGHT; y++) {
         const pixel = video[x + y * VIDEO_WIDTH]
         if (pixel) {
-          this.ctx.fillStyle = "#000"
+          this.ctx.fillStyle = "#212f3d"
           this.ctx.fillRect(
             x * this.scale,
             y * this.scale,
