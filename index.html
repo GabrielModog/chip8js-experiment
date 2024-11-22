@@ -1,14 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>
-      Chip-8 Emulator with Javascript
-    </title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chip-8 Emulator with Javascript</title>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <canvas id="app"></canvas>
+    <div class="container">
+      <div class="tools">
+        <div class="tools__container">
+          <div class="form-group">
+            <label for="roms">Roms</label>
+            <select name="roms" id="roms">
+              <option value="blitz">BLITZ</option>
+              <option value="cave">CAVE</option>
+              <option value="chip8picture">CHIP-8 LOGO</option>
+              <option value="ibm-logo">IBM LOGO</option>
+              <option value="corax">CORAX</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="scale">Scale</label>
+            <input
+              id="scale"
+              value="10"
+              type="range"
+              name="scale"
+              min="1"
+              max="10"
+            />
+          </div>
+          <div class="form-group">
+            <h3>Time Interval</h3>
+            <p id="appTimerInterval">0</p>
+          </div>
+          <div class="form-group">
+            <h3>Elapsed Time</h3>
+            <p id="appTimerElapsed">0</p>
+          </div>
+          <div class="form-group">
+            <h3>Delay Timer</h3>
+            <p id="appTimerDelay">0</p>
+          </div>
+          <div class="form-group">
+            <div class="pause-btn">
+              <input type="checkbox" id="pauseElm" />
+              <label for="pauseElm" id="pauseElmLabel">Pause</label>
+            </div>
+          </div>
+        </div>
+        <div class="tools_container">
+          <div class="keys">
+            <h5>Keys:</h5>
+            <div class="keys__container">
+              <div>1: 1</div>
+              <div>2: 2</div>
+              <div>3: 3</div>
+              <div>4: C</div>
+              <div>Q: 4</div>
+              <div>W: 5</div>
+              <div>E: 6</div>
+              <div>R: D</div>
+              <div>A: 7</div>
+              <div>S: 8</div>
+              <div>D: 9</div>
+              <div>F: E</div>
+              <div>Z: A</div>
+              <div>X: 0</div>
+              <div>C: B</div>
+              <div>V: F</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <canvas id="app"></canvas>
+    </div>
     <script src="./main.js"></script>
   </body>
 </html>
