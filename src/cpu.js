@@ -21,7 +21,6 @@ export default class CPU {
     this.delayTimer = 0
     this.soundTimer = 0
     this.paused = false
-    this.speed = 10
 
     // devices
     this.keyboard = keyboard
@@ -83,8 +82,13 @@ export default class CPU {
   instructions(opcode) {
     this.increment_pc()
 
-    let x = (opcode & 0x0f00) >> 8
-    let y = (opcode & 0x00f0) >> 4
+    const x = (opcode & 0x0f00) >> 8
+    const y = (opcode & 0x00f0) >> 4
+    const msb = 0x80 // most significant bit
+    const width = 8 // constant width for chip-8 sprites
+    const xReg = this.registers[x]
+    const yReg = this.registers[y]
+    const height = opcode & 0xf // n-byte
 
     switch (opcode & 0xf000) {
       case 0x0000: {
@@ -197,13 +201,8 @@ export default class CPU {
         this.registers[x] = rand & bytekk
       } break
       case 0xd000: {
+        // TODO: fix missing bits on display
         this.registers[0xf] = 0 // set VF = collision
-
-        const msb = 0x80 // most significant byte
-        const width = 8 // constant width for chip-8 sprites
-        const xReg = this.registers[x]
-        const yReg = this.registers[y]
-        let height = opcode & 0xf // n-byte
 
         for (let row = 0; row < height; row++) {
           let pixel = this.memory[this.i + row]

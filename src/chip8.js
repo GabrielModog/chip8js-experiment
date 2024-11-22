@@ -1,4 +1,4 @@
-import { FPS, START_ADDRESS } from "./constants.js"
+import { FPS, START_ADDRESS, VIDEO_HEIGHT, VIDEO_WIDTH } from "./constants.js"
 import CPU from "./cpu.js"
 
 export default class Chip8 {
@@ -8,7 +8,12 @@ export default class Chip8 {
   cpu
 
   constructor(keyboard, sound, display) {
-    this.cpu = new CPU(keyboard, sound, display)
+    this.keyboard = keyboard
+    this.sound = sound
+    this.display = display
+    this.cpu = new CPU(this.keyboard, this.sound, this.display)
+
+    this.currentRom = null
 
     this.freeze = false
     this.interval = 0
@@ -31,27 +36,53 @@ export default class Chip8 {
    * fetchRom(romName)
    * @param {string} romName
    */
-  async fetchRom(romName = "blitz.ch8") {
-    const response = await fetch(`public/roms/${romName}`)
+  async fetchRom(romName) {
+    this.currentRom = romName
+    const response = await fetch(`roms/${romName}.ch8`)
     const data = await response.arrayBuffer()
     this.loadRomBufferInMemory(new Uint8Array(data))
   }
 
-  init() {
+  init(romName) {
     this.interval =  1000 / FPS
     this.lastTime = Date.now()
 
     this.cpu.loadFontsetInMemory()
-    this.fetchRom()
+    this.fetchRom(romName)
+  }
+
+  clear() {
+    this.cpu.clearDisplay()
+    this.cpu = new CPU(this.keyboard, this.sound, this.display)
+  }
+
+  onScaleChange(newScale) {
+    this.cpu.display.scale = newScale
+    this.cpu.display.pixelSize = newScale
+    this.cpu.display.canvas.width = VIDEO_WIDTH * newScale
+    this.cpu.display.canvas.height = VIDEO_HEIGHT * newScale
   }
 
   run() {
-    this.now = Date.now()
-    this.elapsed = this.now - this.lastTime
+    // console.log(this.lastTime - time)
+    let now = Date.now()
+    
+    if(!this.lastTime) {
+      this.lastTime = now
+    }
 
-    if(this.elapsed >= this.interval) {
+    let elapsed = now - this.lastTime
+
+    appTimerInterval.innerText = Math.floor(this.interval) + "ms"
+    appTimerElapsed.innerText = elapsed + "ms"
+    appTimerDelay.innerText = this.cpu.delayTimer
+
+    // TODO: fix time cycle
+    if(elapsed > this.interval) {
+      this.lastTime = now
       this.cpu.cycle()
     }
+
     requestAnimationFrame(this.run.bind(this))
   }
 }
