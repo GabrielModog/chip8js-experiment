@@ -20,6 +20,8 @@ export default class Chip8 {
     this.now = 0
     this.lastTime = 0
     this.elapsed = 0
+
+    this.run = this.run.bind(this)
   }
 
   /**
@@ -83,6 +85,6 @@ export default class Chip8 {
       this.cpu.cycle()
     }
 
-    requestAnimationFrame(this.run.bind(this))
+    requestAnimationFrame(this.run)
   }
 }
