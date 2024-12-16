@@ -20,7 +20,7 @@ const chip8 = new Chip8(keyboard, sound, display)
 chip8.init("blitz")
 
 document.addEventListener("DOMContentLoaded", () => {
-  chip8.run()
+  chip8.tick()
 })
 
 scaleElm.addEventListener("change", (event) => {

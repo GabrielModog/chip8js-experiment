@@ -20,8 +20,11 @@ export default class Chip8 {
     this.now = 0
     this.lastTime = 0
     this.elapsed = 0
+    this.lastTimestamp = 0
+    this.fixedFPS = 1000 / 60
 
-    this.run = this.run.bind(this)
+    this.tick = this.tick.bind(this)
+    // this.run = this.run.bind(this)
   }
 
   /**
@@ -46,7 +49,7 @@ export default class Chip8 {
   }
 
   init(romName) {
-    this.interval =  1000 / FPS
+    this.interval = 1000 / FPS
     this.lastTime = Date.now()
 
     this.cpu.loadFontsetInMemory()
@@ -65,26 +68,45 @@ export default class Chip8 {
     this.cpu.display.canvas.height = VIDEO_HEIGHT * newScale
   }
 
-  run() {
-    // console.log(this.lastTime - time)
-    let now = Date.now()
-    
-    if(!this.lastTime) {
-      this.lastTime = now
-    }
-
-    let elapsed = now - this.lastTime
-
-    appTimerInterval.innerText = Math.floor(this.interval) + "ms"
-    appTimerElapsed.innerText = elapsed + "ms"
+  drawInfo() {
+    appTimerInterval.innerText = Math.floor(this.fixedFPS) + "ms"
+    appTimerElapsed.innerText = this.lastTimestamp + "ms"
     appTimerDelay.innerText = this.cpu.delayTimer
-
-    // TODO: fix time cycle
-    if(elapsed > this.interval) {
-      this.lastTime = now
-      this.cpu.cycle()
-    }
-
-    requestAnimationFrame(this.run)
   }
+
+  tick(timestamp) {
+    const deltaTime = timestamp - this.lastTimestamp
+    this.lastTimestamp = timestamp
+    if (!this.timer) { this.timer = 0 }
+    this.timer += deltaTime
+    while (this.timer >= this.fixedFPS) {
+      this.timer -= this.fixedFPS
+    }
+    this.drawInfo()
+    this.cpu.cycle()
+    requestAnimationFrame(this.tick)
+  }
+
+  // run() {
+  //   // console.log(this.lastTime - time)
+  //   let now = Date.now()
+
+  //   if(!this.lastTime) {
+  //     this.lastTime = now
+  //   }
+
+  //   let elapsed = now - this.lastTime
+
+  //   appTimerInterval.innerText = Math.floor(this.interval) + "ms"
+  //   appTimerElapsed.innerText = elapsed + "ms"
+  //   appTimerDelay.innerText = this.cpu.delayTimer
+
+  //   // TODO: fix time cycle
+  //   if(elapsed > this.interval) {
+  //     this.lastTime = now
+  //     this.cpu.cycle()
+  //   }
+
+  //   requestAnimationFrame(this.run)
+  // }
 }

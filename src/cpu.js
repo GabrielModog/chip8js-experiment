@@ -92,14 +92,7 @@ export default class CPU {
 
     switch (opcode & 0xf000) {
       case 0x0000: {
-        switch (opcode) {
-          case 0x00e0: {
-            this.clearDisplay()
-          } break
-          case 0x00ee: {
-            this.pc = this.stack.pop()
-          } break
-        }
+        this.op_0(opcode)
       } break
       case 0x1000: {
         const nnn = (opcode & 0xfff)
@@ -279,5 +272,16 @@ export default class CPU {
         }
       } break
     }
+  }
+}
+
+CPU.prototype.op_0 = function(opcode){
+  switch (opcode) {
+    case 0x00e0: {
+      this.clearDisplay()
+    } break
+    case 0x00ee: {
+      this.pc = this.stack.pop()
+    } break
   }
 }

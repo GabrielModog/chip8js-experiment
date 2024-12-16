@@ -12,6 +12,10 @@ body {
   background-color: #212f3d;
 }
 
+p, label, span, a, h1, h2, h3, h4, h5, h6 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
 #app {
   background-color: #eeeeee;
   border-radius: 4px;
@@ -21,6 +25,7 @@ body {
 .pause-btn > input[type=checkbox] {
   display: none;
 }
+
 .pause-btn {
   display: flex;
   justify-content: center;
@@ -36,19 +41,20 @@ body {
 }
 
 .tools {
-  position: absolute;
+  /* position: absolute; */
+  border-radius: 6px;
   top: 0;
   left: 0;
   padding: 1rem;
-  width: 100%;
+  width: 320px;
   background-color: #eeeeee;
 }
 
 .tools__container {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 1rem;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;;
+  justify-content: center;
 }
 
 .keys {
@@ -78,4 +84,19 @@ body {
 .form-group {
   display: flex;
   flex-direction: column;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+}
+
+.canvas-container {
+  width: 640px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
