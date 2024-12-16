@@ -5,6 +5,8 @@ import Display from "./display.js"
 import Keyboard from "./keyboard.js"
 import Sound from "./sound.js"
 
+let searchParams = new URLSearchParams(document.location.search);
+
 // forms
 const scaleElm = document.getElementById("scale")
 const romSelectElm = document.getElementById("roms")
@@ -17,7 +19,14 @@ const display = new Display()
 
 const chip8 = new Chip8(keyboard, sound, display)
 
-chip8.init("blitz")
+let rom = "blitz"
+
+if (searchParams.has("rom")) {
+  rom = searchParams.get("rom")
+  romSelectElm.value = rom
+}
+
+chip8.init(rom)
 
 document.addEventListener("DOMContentLoaded", () => {
   chip8.tick()
@@ -29,6 +38,8 @@ scaleElm.addEventListener("change", (event) => {
 
 romSelectElm.addEventListener("change", (event) => {
   chip8.clear()
+  searchParams.set("rom", event.target.value)
+  document.location.search = searchParams.toString()
   chip8.init(event.target.value)
 })
 
