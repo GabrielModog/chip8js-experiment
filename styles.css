@@ -8,8 +8,12 @@ body {
   height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   background-color: #212f3d;
+}
+
+p, label, span, a, h1, h2, h3, h4, h5, h6 {
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 #app {
@@ -18,9 +22,10 @@ body {
   border: 1px solid #212f3d;
 }
 
-.pause-btn > input[type=checkbox] {
+input[type=checkbox] {
   display: none;
 }
+
 .pause-btn {
   display: flex;
   justify-content: center;
@@ -33,22 +38,30 @@ body {
   gap: 6px;
   text-transform: uppercase;
   padding: .5rem;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+  &:active {
+    opacity: 0.8;
+  }
 }
 
 .tools {
-  position: absolute;
+  border-radius: 6px;
   top: 0;
   left: 0;
   padding: 1rem;
-  width: 100%;
+  width: 320px;
   background-color: #eeeeee;
 }
 
 .tools__container {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 1rem;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;;
+  justify-content: center;
 }
 
 .keys {
@@ -78,4 +91,20 @@ body {
 .form-group {
   display: flex;
   flex-direction: column;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 4px;
+  margin-top: 10rem;
+}
+
+.canvas-container {
+  width: 640px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
