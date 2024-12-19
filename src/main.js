@@ -10,7 +10,7 @@ let searchParams = new URLSearchParams(document.location.search);
 // forms
 const scaleElm = document.getElementById("scale")
 const romSelectElm = document.getElementById("roms")
-const pauseElm = document.getElementById("pauseElm")
+const pauseBtn = document.getElementById("pauseBtn")
 
 // devices
 const keyboard = new Keyboard(KEYS)
@@ -43,7 +43,7 @@ romSelectElm.addEventListener("change", (event) => {
   chip8.init(event.target.value)
 })
 
-pauseElm.addEventListener("change", (event) => {
+pauseBtn.addEventListener("change", (event) => {
   chip8.cpu.paused = event.target.checked
-  pauseElmLabel.innerText = chip8.cpu.paused ? "PLAY" : "PAUSE"
+  pauseBtn.nextElementSibling.innerText = chip8.cpu.paused  ? "Play" : "Pause"
 })

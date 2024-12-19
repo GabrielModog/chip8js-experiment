@@ -15,14 +15,11 @@ export default class Chip8 {
 
     this.currentRom = null
 
-    this.freeze = false
-
     this.elapsed = 0
     this.lastTimestamp = 0
     this.fixedFPS = 1000 / 60
 
     this.tick = this.tick.bind(this)
-    // this.run = this.run.bind(this)
   }
 
   /**
@@ -61,6 +58,11 @@ export default class Chip8 {
     this.cpu.display.pixelSize = newScale
     this.cpu.display.canvas.width = VIDEO_WIDTH * newScale
     this.cpu.display.canvas.height = VIDEO_HEIGHT * newScale
+  }
+
+  togglePause() {
+    const state = this.cpu.paused
+    this.cpu.paused = !state
   }
 
   drawInfo() {
