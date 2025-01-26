@@ -55,6 +55,7 @@ input[type=checkbox] {
   padding: 1rem;
   width: 320px;
   background-color: #eeeeee;
+  flex: 1;
 }
 
 .tools__container {
@@ -98,6 +99,7 @@ input[type=checkbox] {
   flex-direction: row;
   justify-content: flex-start;
   align-items: flex-start;
+  flex-wrap: wrap;
   gap: 4px;
   margin-top: 10rem;
 }
@@ -107,4 +109,5 @@ input[type=checkbox] {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex: 1;
 }

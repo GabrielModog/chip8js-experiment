@@ -18,6 +18,7 @@ export default class Chip8 {
     this.elapsed = 0
     this.lastTimestamp = 0
     this.fixedFPS = 1000 / 60
+    this.frameCount = 0
 
     this.tick = this.tick.bind(this)
   }
@@ -66,21 +67,24 @@ export default class Chip8 {
   }
 
   drawInfo() {
-    appTimerInterval.innerText = Math.floor(this.fixedFPS) + "ms"
-    appTimerElapsed.innerText = this.elapsed + "s"
+    appTimerInterval.innerText = Math.round(1000 / this.fixedFPS) + " FPS"
+    appTimerElapsed.innerText = this.frameCount
     appTimerDelay.innerText = this.cpu.delayTimer
+    appTimerSound.innerText = this.cpu.soundTimer
+    memreg.innerText = this.cpu.registers.join(' | ')
   }
 
   tick(timestamp) {
     const deltaTime = timestamp - this.lastTimestamp
     this.lastTimestamp = timestamp
-    if (!this.elapsed) { this.elapsed = 0 }
+    if (!this.elapsed) { this.elapsed = 0 } 
     this.elapsed += deltaTime
     while (this.elapsed >= this.fixedFPS) {
       this.elapsed -= this.fixedFPS
+      this.frameCount++
+      this.cpu.cycle()
     }
     this.drawInfo()
-    this.cpu.cycle()
     requestAnimationFrame(this.tick)
   }
 }
