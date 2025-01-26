@@ -16,11 +16,13 @@ export default class Chip8 {
     this.currentRom = null
 
     this.elapsed = 0
-    this.lastTimestamp = 0
-    this.fixedFPS = 1000 / 60
+    this.lastTimestamp = performance.now()
+    this.fixedFPS = 1000 / 600
     this.frameCount = 0
 
     this.tick = this.tick.bind(this)
+
+    this.cpu.loadFontsetInMemory()
   }
 
   /**
@@ -39,13 +41,17 @@ export default class Chip8 {
    */
   async fetchRom(romName) {
     this.currentRom = romName
-    const response = await fetch(`roms/${romName}.ch8`)
-    const data = await response.arrayBuffer()
-    this.loadRomBufferInMemory(new Uint8Array(data))
+    try {
+      const response = await fetch(`roms/${romName}.ch8`)
+      const data = await response.arrayBuffer()
+      const uint8ArrayData = new Uint8Array(data)
+      this.loadRomBufferInMemory(uint8ArrayData)
+    } catch (error) {
+      console.error(error) 
+    }
   }
 
   init(romName) {
-    this.cpu.loadFontsetInMemory()
     this.fetchRom(romName)
   }
 
@@ -79,12 +85,16 @@ export default class Chip8 {
     this.lastTimestamp = timestamp
     if (!this.elapsed) { this.elapsed = 0 } 
     this.elapsed += deltaTime
-    while (this.elapsed >= this.fixedFPS) {
+    this.frameCount = 0
+    while (this.elapsed >= this.fixedFPS && this.frameCount < 10) {
       this.elapsed -= this.fixedFPS
       this.frameCount++
-      this.cpu.cycle()
+      if(!this.cpu.paused) {
+        this.cpu.cycle()
+      }
     }
     this.drawInfo()
+    this.display.render(this.cpu.video) 
     requestAnimationFrame(this.tick)
   }
 }

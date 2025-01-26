@@ -15,7 +15,7 @@ export default class CPU {
     this.registers = new Uint8Array(16)
     this.stack = new Array()
     this.pc = START_ADDRESS
-    this.video = new Array(VIDEO_WIDTH * VIDEO_HEIGHT)
+    this.video = new Array(VIDEO_WIDTH * VIDEO_HEIGHT).fill(0)
     this.sp = 0
     this.i = 0
     this.delayTimer = 0
@@ -35,24 +35,20 @@ export default class CPU {
   }
 
   cycle() {
-    if (!this.paused) {
-      let opcode = (this.memory[this.pc] << 8 | this.memory[this.pc + 1])
-      this.instructions(opcode)
-      if (this.delayTimer > 0) {
-        this.delayTimer -= 1
-      }
-      if (this.soundTimer > 0) {
-        this.soundTimer -= 1
-      }
-    }
+     let opcode = (this.memory[this.pc] << 8 | this.memory[this.pc + 1])
+     this.instructions(opcode)
+     if (this.delayTimer > 0) {
+       this.delayTimer -= 1
+     }
+     if (this.soundTimer > 0) {
+       this.soundTimer -= 1
+     }
 
     if (this.soundTimer > 0) {
       this.sound.play()
     } else {
       this.sound.stop()
     }
-
-    this.display.render(this.video)
   }
 
   /**
@@ -72,7 +68,7 @@ export default class CPU {
    * - clear video display
    */
   clearDisplay() {
-    this.video = new Array(VIDEO_WIDTH * VIDEO_HEIGHT)
+    this.video.fill(0)
   }
 
   /**
@@ -84,6 +80,8 @@ export default class CPU {
 
     const x = (opcode & 0x0f00) >> 8
     const y = (opcode & 0x00f0) >> 4
+    const nnn = (opcode & 0xfff)
+    const bytekk = (opcode & 0xff)
     const msb = 0x80 // most significant bit
     const width = 8 // constant width for chip-8 sprites
     const xReg = this.registers[x]
@@ -95,22 +93,22 @@ export default class CPU {
         this.op_0(opcode)
       } break
       case 0x1000: {
-        const nnn = (opcode & 0xfff)
         this.pc = nnn
       } break
       case 0x2000: {
-        const nnn = (opcode & 0xfff)
+        if(this.stack.length > 0xf) {
+          console.error("Stack Overflow")
+          return
+        } 
         this.stack.push(this.pc)
         this.pc = nnn
       } break
       case 0x3000: {
-        const bytekk = (opcode & 0xff)
         if (this.registers[x] === bytekk) {
           this.increment_pc()
         }
       } break
       case 0x4000: {
-        const bytekk = (opcode & 0xff)
         if (this.registers[x] !== bytekk) {
           this.increment_pc()
         }
@@ -121,11 +119,9 @@ export default class CPU {
         }
       } break
       case 0x6000: {
-        const bytekk = (opcode & 0xff)
         this.registers[x] = bytekk
       } break
       case 0x7000: {
-        const bytekk = (opcode & 0xff)
         this.registers[x] += bytekk
       } break
       case 0x8000: {
@@ -181,30 +177,24 @@ export default class CPU {
         }
       } break
       case 0xa000: {
-        const nnn = (opcode & 0xfff)
         this.i = nnn
       } break
       case 0xb000: {
-        const nnn = (opcode & 0xfff)
         this.pc = this.registers[0] + nnn
       } break
       case 0xc000: {
-        const bytekk = (opcode & 0xff)
         const rand = this.rand()
         this.registers[x] = rand & bytekk
       } break
       case 0xd000: {
-        // TODO: fix missing bits on display
         this.registers[0xf] = 0 // set VF = collision
-
         for (let row = 0; row < height; row++) {
           let pixel = this.memory[this.i + row]
           for (let col = 0; col < width; col++) {
             if ((pixel & (msb >> col)) !== 0) {
-              const xx = (xReg + col)
+              const xx = (xReg + col) 
               const yy = (yReg + row)
               const idx = xx + (yy * VIDEO_WIDTH)
-              // let idx = ((xReg + col) + ((yReg + row) * VIDEO_WIDTH))
               if (this.video[idx] === 1) {
                 this.registers[0xf] = 1
               }
@@ -271,6 +261,9 @@ export default class CPU {
           } break
         }
       } break
+      default:
+        console.error(`Unknow OPCODE: 0x${opcode.toString(16)}`)
+        break
     }
   }
 }
@@ -281,6 +274,7 @@ CPU.prototype.op_0 = function(opcode){
       this.clearDisplay()
     } break
     case 0x00ee: {
+      if(this.stack < 0x0) return console.error("Stack Underflow")
       this.pc = this.stack.pop()
     } break
   }
