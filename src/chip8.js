@@ -73,7 +73,7 @@ export default class Chip8 {
   }
 
   drawInfo() {
-    appTimerInterval.innerText = Math.round(1000 / this.fixedFPS) + " FPS"
+    appTimerInterval.innerText = Math.round(1000 / this.fixedFPS) + " mhz"
     appTimerElapsed.innerText = this.frameCount
     appTimerDelay.innerText = this.cpu.delayTimer
     appTimerSound.innerText = this.cpu.soundTimer
