@@ -285,3 +285,4 @@ CPU.prototype.op_0 = function(opcode){
     } break
   }
 }
+
