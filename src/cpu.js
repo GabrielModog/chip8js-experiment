@@ -1,4 +1,4 @@
-import { VIDEO_WIDTH, VIDEO_HEIGHT, START_ADDRESS, FONTSET, FONT_START_ADDRESS } from "./constants.js"
+import { VIDEO_WIDTH, VIDEO_HEIGHT, START_ADDRESS, FONTSET, FONT_START_ADDRESS, MSB } from "./constants.js"
 
 /**   @import Display from "./display.js"     */
 /**   @import Keyboard from "./keyboard.js"   */
@@ -83,7 +83,6 @@ export default class CPU {
     const y = (opcode & 0x00f0) >> 4
     const nnn = (opcode & 0xfff)
     const bytekk = (opcode & 0xff)
-    const msb = 0x80 // most significant bit
     const width = 8 // constant width for chip-8 sprites
     const xReg = this.registers[x]
     const yReg = this.registers[y]
@@ -100,162 +99,43 @@ export default class CPU {
         this.op_2(nnn)
       } break
       case 0x3000: {
-        if (this.registers[x] === bytekk) {
-          this.increment_pc()
-        }
+        this.op_3(x, bytekk)
       } break
       case 0x4000: {
-        if (this.registers[x] !== bytekk) {
-          this.increment_pc()
-        }
+        this.op_4(x, bytekk)
       } break
       case 0x5000: {
-        if (this.registers[x] === this.registers[y]) {
-          this.increment_pc()
-        }
+        this.op_5(x, y)
       } break
       case 0x6000: {
-        this.registers[x] = bytekk
+        this.op_6(x, bytekk)
       } break
       case 0x7000: {
-        this.registers[x] += bytekk
+        this.op_7(x, bytekk)
       } break
       case 0x8000: {
-        const mode = (opcode & 0xf)
-        switch (mode) {
-          case 0x0: {
-            this.registers[x] = this.registers[y]
-          } break
-          case 0x1: {
-            this.registers[x] |= this.registers[y]
-          } break
-          case 0x2: {
-            this.registers[x] &= this.registers[y]
-          } break
-          case 0x3: {
-            this.registers[x] ^= this.registers[y]
-          } break
-          case 0x4: {
-            this.registers[0xf] = 0
-            const sum = this.registers[x] + this.registers[y]
-            if (sum > 0xff) {
-              this.registers[0xf] = 1
-            }
-            this.registers[x] = sum
-          } break
-          case 0x5: {
-            this.registers[0xf] = 0
-            if (this.registers[x] > this.registers[y]) {
-              this.registers[0xf] = 1
-            }
-            this.registers[x] -= this.registers[y]
-          } break
-          case 0x6: {
-            this.registers[0xf] = this.registers[x] & 0x1
-            this.registers[x] >>= 1
-          } break
-          case 0x7: {
-            this.registers[0xf] = 0
-            if (this.registers[y] > this.registers[x]) {
-              this.registers[0xf] = 1
-            }
-            this.registers[x] = this.registers[y] - this.registers[x]
-          } break
-          case 0xe: {
-            this.registers[0xf] = (this.registers[x] & 0x80) >> 7
-            this.registers[x] <<= 1
-          } break
-        }
+        this.op_8(opcode, x, y)
       } break
       case 0x9000: {
-        if (this.registers[x] !== this.registers[y]) {
-          this.increment_pc()
-        }
+        this.op_9(x, y)
       } break
       case 0xa000: {
-        this.i = nnn
+        this.op_a(nnn)
       } break
       case 0xb000: {
-        this.pc = this.registers[0] + nnn
+        this.op_b(nnn)
       } break
       case 0xc000: {
-        const rand = this.rand()
-        this.registers[x] = rand & bytekk
+        this.op_c(x, bytekk)
       } break
       case 0xd000: {
-        this.registers[0xf] = 0 // set VF = collision
-        for (let row = 0; row < height; row++) {
-          let pixel = this.memory[this.i + row]
-          for (let col = 0; col < width; col++) {
-            if ((pixel & (msb >> col)) !== 0) {
-              const xx = (xReg + col)
-              const yy = (yReg + row)
-              const idx = xx + (yy * VIDEO_WIDTH)
-              if (this.video[idx] === 1) {
-                this.registers[0xf] = 1
-              }
-              this.video[idx] ^= 1
-            }
-          }
-        }
+        this.op_d(xReg, yReg, width, height, MSB)
       } break
       case 0xe000: {
-        const mode = (opcode & 0xff)
-        switch (mode) {
-          case 0x9e: {
-            if (this.keyboard.isKeyPressed(this.registers[x])) {
-              this.increment_pc()
-            }
-          } break
-          case 0xa1: {
-            if (!this.keyboard.isKeyPressed(this.registers[x])) {
-              this.increment_pc()
-            }
-          } break
-        }
+        this.op_e(opcode, x)
       } break
       case 0xf000: {
-        const mode = (opcode & 0xff)
-        switch (mode) {
-          case 0x07: {
-            this.registers[x] = this.delayTimer
-          } break
-          case 0x0a: {
-            this.paused = true
-            this.keyboard.nextKeyCallback = (key) => {
-              this.registers[x] = key
-              this.paused = false
-            }
-          } break
-          case 0x15: {
-            this.delayTimer = this.registers[x]
-          } break
-          case 0x18: {
-            this.soundTimer = this.registers[x]
-          } break
-          case 0x1e: {
-            this.i += this.registers[x]
-          } break
-          case 0x29: {
-            this.i = this.registers[x] * 5
-          } break
-          case 0x33: {
-            let value = this.registers[x]
-            this.memory[this.i] = Math.floor(value / 100)
-            this.memory[this.i + 1] = Math.floor((value % 100) / 10)
-            this.memory[this.i + 2] = Math.floor(value % 10)
-          } break
-          case 0x55: {
-            for (let registerIndex = 0; registerIndex <= x; registerIndex++) {
-              this.memory[this.i + registerIndex] = this.registers[registerIndex]
-            }
-          } break
-          case 0x65: {
-            for (let registerIndex = 0; registerIndex <= x; registerIndex++) {
-              this.registers[registerIndex] = this.memory[this.i + registerIndex]
-            }
-          } break
-        }
+        this.op_f(opcode, x)
       } break
       default:
         console.error(`Unknow OPCODE: 0x${opcode.toString(16)}`)
@@ -264,6 +144,9 @@ export default class CPU {
   }
 }
 
+/**
+ * Instructions Implementations
+ */
 CPU.prototype.op_0 = function(opcode) {
   switch (opcode) {
     case 0x00e0: {

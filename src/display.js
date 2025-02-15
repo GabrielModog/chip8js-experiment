@@ -26,7 +26,6 @@ export default class Display {
    * @param {Array} video - display buffer
    */
   render(video) {
-    // TODO: fix missing bits on display
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
     for (let x = 0; x < VIDEO_WIDTH; x++) {
       for (let y = 0; y < VIDEO_HEIGHT; y++) {
