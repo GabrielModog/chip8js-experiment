@@ -8,7 +8,7 @@ import Sound from "./sound.js"
 let searchParams = new URLSearchParams(document.location.search);
 
 // forms
-const scaleElm = document.getElementById("scale")
+const scaleElm = document.getElementById("scale") // to remove
 const romSelectElm = document.getElementById("roms")
 
 // devices
@@ -31,9 +31,11 @@ document.addEventListener("DOMContentLoaded", () => {
   chip8.tick()
 })
 
+/* TO REMOVE */
 scaleElm.addEventListener("change", (event) => {
   chip8.onScaleChange(parseInt(event.target.value))
 })
+/* TO REMOVE */
 
 romSelectElm.addEventListener("change", (event) => {
   chip8.clear()
@@ -41,5 +43,4 @@ romSelectElm.addEventListener("change", (event) => {
   document.location.search = searchParams.toString()
   chip8.init(event.target.value)
 })
-
 

@@ -1,4 +1,4 @@
-import { FPS, START_ADDRESS, VIDEO_HEIGHT, VIDEO_WIDTH } from "./constants.js"
+import { START_ADDRESS, VIDEO_HEIGHT, VIDEO_WIDTH } from "./constants.js"
 import CPU from "./cpu.js"
 
 export default class Chip8 {
@@ -47,19 +47,21 @@ export default class Chip8 {
       const uint8ArrayData = new Uint8Array(data)
       this.loadRomBufferInMemory(uint8ArrayData)
     } catch (error) {
-      console.error(error) 
+      console.error(error)
     }
   }
 
   init(romName) {
+    this.clear()
     this.fetchRom(romName)
   }
 
   clear() {
-    this.cpu.clearDisplay()
+    this.cpu.reset()
     this.cpu = new CPU(this.keyboard, this.sound, this.display)
   }
 
+  /// TO REMOVE
   onScaleChange(newScale) {
     this.cpu.display.scale = newScale
     this.cpu.display.pixelSize = newScale
@@ -72,6 +74,7 @@ export default class Chip8 {
     this.cpu.paused = !state
   }
 
+  /// TO REMOVE
   drawInfo() {
     appTimerInterval.innerText = Math.round(1000 / this.fixedFPS) + " mhz"
     appTimerElapsed.innerText = this.frameCount
@@ -80,21 +83,32 @@ export default class Chip8 {
     memreg.innerText = this.cpu.registers.join(' | ')
   }
 
-  tick(timestamp) {
+  async tick(timestamp) {
     const deltaTime = timestamp - this.lastTimestamp
+
     this.lastTimestamp = timestamp
-    if (!this.elapsed) { this.elapsed = 0 } 
+
+    if (!this.elapsed) { this.elapsed = 0 }
+
     this.elapsed += deltaTime
     this.frameCount = 0
+
     while (this.elapsed >= this.fixedFPS && this.frameCount < 10) {
       this.elapsed -= this.fixedFPS
       this.frameCount++
-      if(!this.cpu.paused) {
+      if (!this.cpu.paused) {
         this.cpu.cycle()
       }
     }
+
     this.drawInfo()
-    this.display.render(this.cpu.video) 
+
+    if (this.cpu.draw_flag) {
+      this.display.render(this.cpu.video)
+      this.cpu.draw_flag = false
+    }
+
+    await this.cpu.sleep()
     requestAnimationFrame(this.tick)
   }
 }

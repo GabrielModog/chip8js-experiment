@@ -22,6 +22,7 @@ export default class CPU {
     this.delayTimer = 0
     this.soundTimer = 0
     this.paused = false
+    this.draw_flag = false
 
     // devices
     this.keyboard = keyboard
@@ -37,10 +38,13 @@ export default class CPU {
 
   cycle() {
     let opcode = (this.memory[this.pc] << 8 | this.memory[this.pc + 1])
+
     this.instructions(opcode)
+
     if (this.delayTimer > 0) {
       this.delayTimer -= 1
     }
+
     if (this.soundTimer > 0) {
       this.soundTimer -= 1
     }
@@ -50,6 +54,14 @@ export default class CPU {
     } else {
       this.sound.stop()
     }
+  }
+
+  /**
+   * sleep()
+   * - unfortunately only way that I found to slow down the clock
+   * */
+  sleep() {
+    return new Promise((res) => setTimeout(res, 30))
   }
 
   /**
@@ -70,6 +82,27 @@ export default class CPU {
    */
   clearDisplay() {
     this.video.fill(0)
+    this.draw_flag = false
+  }
+
+  /**
+   * reset()
+   * - clears all states
+   * */
+  reset() {
+    this.clearDisplay()
+    this.stack.fill(0)
+    this.opcode = 0
+    this.i = 0
+    this.sp = 0
+    this.pc = START_ADDRESS
+    this.paused = false
+    this.delayTimer = 0
+    this.soundTImer = 0
+
+    for (let i = FONT_START_ADDRESS; i < START_ADDRESS; i++) {
+      this.memory[i] = 0
+    }
   }
 
   /**
@@ -147,6 +180,7 @@ export default class CPU {
 /**
  * Instructions Implementations
  */
+
 CPU.prototype.op_0 = function(opcode) {
   switch (opcode) {
     case 0x00e0: {
@@ -281,6 +315,7 @@ CPU.prototype.op_d = function(xReg, yReg, width, height, msb) {
       }
     }
   }
+  this.draw_flag = true
 }
 
 CPU.prototype.op_e = function(opcode, vx) {
