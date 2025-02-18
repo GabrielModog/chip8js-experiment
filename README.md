@@ -4,17 +4,20 @@ An experimental Chip-8 emulator powered by Javascript.
 
 ## Getting Started
 
-To get the projecting running you need to have [Bun](https://bun.sh) installed in your machine.
+To run the project in your machine you have to be installed [Bun](https://bun.sh).
+
+Or just run the `index.html` file in the `/public` folder with your own server solution.
 
 #### Running
 
 ```bash
-bun server.js
+bun run server.js
 ```
 
 ## Goals
 
 > Be able to emulate most of Chip-8 roms.
+> Disassembly roms (maybe)
 
 ## References
 
