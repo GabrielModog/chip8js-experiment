@@ -14,7 +14,7 @@ for(const file of glob.scanSync(".")) {
 
 const server = Bun.serve({
   development: dev,
-  port: 3000,
+  port: 3005,
   async fetch(request) {
     const url = new URL(request.url)
 

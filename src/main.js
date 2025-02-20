@@ -31,12 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
   chip8.tick()
 })
 
-/* TO REMOVE */
-scaleElm.addEventListener("change", (event) => {
-  chip8.onScaleChange(parseInt(event.target.value))
-})
-/* TO REMOVE */
-
 romSelectElm.addEventListener("change", (event) => {
   chip8.clear()
   searchParams.set("rom", event.target.value)

@@ -61,26 +61,9 @@ export default class Chip8 {
     this.cpu = new CPU(this.keyboard, this.sound, this.display)
   }
 
-  /// TO REMOVE
-  onScaleChange(newScale) {
-    this.cpu.display.scale = newScale
-    this.cpu.display.pixelSize = newScale
-    this.cpu.display.canvas.width = VIDEO_WIDTH * newScale
-    this.cpu.display.canvas.height = VIDEO_HEIGHT * newScale
-  }
-
   togglePause() {
     const state = this.cpu.paused
     this.cpu.paused = !state
-  }
-
-  /// TO REMOVE
-  drawInfo() {
-    appTimerInterval.innerText = Math.round(1000 / this.fixedFPS) + " mhz"
-    appTimerElapsed.innerText = this.frameCount
-    appTimerDelay.innerText = this.cpu.delayTimer
-    appTimerSound.innerText = this.cpu.soundTimer
-    memreg.innerText = this.cpu.registers.join(' | ')
   }
 
   async tick(timestamp) {
@@ -100,8 +83,6 @@ export default class Chip8 {
         this.cpu.cycle()
       }
     }
-
-    this.drawInfo()
 
     if (this.cpu.draw_flag) {
       this.display.render(this.cpu.video)

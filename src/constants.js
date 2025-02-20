@@ -42,3 +42,5 @@ export const KEYS = {
   67: 0xB, // C
   86: 0xF  // V
 }
+
+export const PIXEL_COLOR = "#11161c"

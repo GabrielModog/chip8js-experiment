@@ -1,4 +1,4 @@
-import { VIDEO_HEIGHT, VIDEO_WIDTH } from "./constants.js"
+import { PIXEL_COLOR, VIDEO_HEIGHT, VIDEO_WIDTH } from "./constants.js"
 
 export default class Display {
   /**
@@ -31,7 +31,7 @@ export default class Display {
       for (let y = 0; y < VIDEO_HEIGHT; y++) {
         const pixel = video[x + y * VIDEO_WIDTH]
         if (pixel) {
-          this.ctx.fillStyle = "#212f3d"
+          this.ctx.fillStyle = PIXEL_COLOR
           this.ctx.fillRect(
             x * this.scale,
             y * this.scale,
