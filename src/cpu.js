@@ -37,10 +37,17 @@ export default class CPU {
   }
 
   cycle() {
-    let opcode = (this.memory[this.pc] << 8 | this.memory[this.pc + 1])
-
+    let opcode = this.fetch()
     this.instructions(opcode)
+    this.timers()
+    this.beep()
+  }
 
+  fetch() {
+    return (this.memory[this.pc] << 8 | this.memory[this.pc + 1])
+  }
+
+  timers() {
     if (this.delayTimer > 0) {
       this.delayTimer -= 1
     }
@@ -48,7 +55,9 @@ export default class CPU {
     if (this.soundTimer > 0) {
       this.soundTimer -= 1
     }
+  }
 
+  beep() {
     if (this.soundTimer > 0) {
       this.sound.play()
     } else {
@@ -180,7 +189,7 @@ export default class CPU {
 /**
  * Instructions Implementations
  */
-
+// CLS or RET
 CPU.prototype.op_0 = function(opcode) {
   switch (opcode) {
     case 0x00e0: {
@@ -193,10 +202,12 @@ CPU.prototype.op_0 = function(opcode) {
   }
 }
 
+// JP addr
 CPU.prototype.op_1 = function(nnn) {
   this.pc = nnn
 }
 
+// CALL addr
 CPU.prototype.op_2 = function(nnn) {
   if (this.stack.length > 0xf) {
     console.error("Stack Overflow")
@@ -206,28 +217,33 @@ CPU.prototype.op_2 = function(nnn) {
   this.pc = nnn
 }
 
+// SE VX, BYTE
 CPU.prototype.op_3 = function(vx, bytekk) {
   if (this.registers[vx] === bytekk) {
     this.increment_pc()
   }
 }
 
+// SNE VX, BYTE
 CPU.prototype.op_4 = function(vx, bytekk) {
   if (this.registers[vx] !== bytekk) {
     this.increment_pc()
   }
 }
 
+// SE VX, VY
 CPU.prototype.op_5 = function(vx, vy) {
   if (this.registers[vx] === this.registers[vy]) {
     this.increment_pc()
   }
 }
 
+// LD VX, BYTE
 CPU.prototype.op_6 = function(vx, bytekk) {
   this.registers[vx] = bytekk
 }
 
+// ADD VX, BYTE
 CPU.prototype.op_7 = function(vx, bytekk) {
   this.registers[vx] += bytekk
 }
@@ -235,18 +251,23 @@ CPU.prototype.op_7 = function(vx, bytekk) {
 CPU.prototype.op_8 = function(opcode, vx, vy) {
   const mode = (opcode & 0xf)
   switch (mode) {
+    // LD VX, VY
     case 0x0: {
       this.registers[vx] = this.registers[vy]
     } break
+    // OR VX, VY
     case 0x1: {
       this.registers[vx] |= this.registers[vy]
     } break
+    // AND VX, VY
     case 0x2: {
       this.registers[vx] &= this.registers[vy]
     } break
+    // XOR VX, VY
     case 0x3: {
       this.registers[vx] ^= this.registers[vy]
     } break
+    // ADD VX, VY
     case 0x4: {
       this.registers[0xf] = 0
       const sum = this.registers[vx] + this.registers[vy]
@@ -255,6 +276,7 @@ CPU.prototype.op_8 = function(opcode, vx, vy) {
       }
       this.registers[vx] = sum
     } break
+    // SUB VX, VY
     case 0x5: {
       this.registers[0xf] = 0
       if (this.registers[vx] > this.registers[vy]) {
@@ -262,10 +284,12 @@ CPU.prototype.op_8 = function(opcode, vx, vy) {
       }
       this.registers[vx] -= this.registers[vy]
     } break
+    // SHR VX, VY
     case 0x6: {
       this.registers[0xf] = this.registers[vx] & 0x1
       this.registers[vx] >>= 1
     } break
+    // SUBN VX, VY
     case 0x7: {
       this.registers[0xf] = 0
       if (this.registers[vy] > this.registers[vx]) {
@@ -273,6 +297,7 @@ CPU.prototype.op_8 = function(opcode, vx, vy) {
       }
       this.registers[vx] = this.registers[vy] - this.registers[vx]
     } break
+    // SHL VX, VY
     case 0xe: {
       this.registers[0xf] = (this.registers[vx] & 0x80) >> 7
       this.registers[vx] <<= 1
@@ -305,8 +330,8 @@ CPU.prototype.op_d = function(xReg, yReg, width, height, msb) {
     let pixel = this.memory[this.i + row]
     for (let col = 0; col < width; col++) {
       if ((pixel & (msb >> col)) !== 0) {
-        const xx = (xReg + col)
-        const yy = (yReg + row)
+        const xx = ((xReg % VIDEO_WIDTH) + col)
+        const yy = ((yReg % VIDEO_HEIGHT) + row)
         const idx = xx + (yy * VIDEO_WIDTH)
         if (this.video[idx] === 1) {
           this.registers[0xf] = 1
@@ -337,9 +362,11 @@ CPU.prototype.op_e = function(opcode, vx) {
 CPU.prototype.op_f = function(opcode, vx) {
   const mode = (opcode & 0xff)
   switch (mode) {
+    // FX07
     case 0x07: {
       this.registers[vx] = this.delayTimer
     } break
+    // FX0A
     case 0x0a: {
       this.paused = true
       this.keyboard.nextKeyCallback = (key) => {
@@ -347,12 +374,15 @@ CPU.prototype.op_f = function(opcode, vx) {
         this.paused = false
       }
     } break
+    // FX15
     case 0x15: {
       this.delayTimer = this.registers[vx]
     } break
+    // FX18
     case 0x18: {
       this.soundTimer = this.registers[vx]
     } break
+    // FX1E
     case 0x1e: {
       this.i += this.registers[vx]
     } break
