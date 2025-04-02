@@ -3,79 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Chip-8 Emulator with Javascript</title>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'" />
+    <title>Chip-8 Emulator with Javascript by GabrielModog</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="container">
+      <div class="canvas-container">
+        <canvas id="app"></canvas>
+      </div>
       <div class="tools">
-        <div class="tools__container">
-          <div class="form-group">
+        <div class="form-group">
             <label for="roms"><b>Roms</b></label>
             <select name="roms" id="roms">
               <option value="blitz">BLITZ</option>
               <option value="cave">CAVE</option>
+              <option value="chip8-logo-test">CHIP8 LOGO TEST</option>
+              <option value="quirks">QUIRKS TESt</option>
+              <option value="flags">FLAGS TEST</option>
+              <option value="keypad">KEYPAD TEST</option>
               <option value="chip8picture">CHIP-8 LOGO</option>
               <option value="ibm-logo">IBM LOGO</option>
               <option value="corax">CORAX</option>
+              <option value="pumpkindressup">PUMPKINDRESSUP</option>
+              <option value="particle-demo">PARTICLEDEMO</option>
+              <option value="breakout">BREAKOUT</option>
+              <option value="tetris">TETRIS</option>
+              <option value="maze">MAZE</option>
             </select>
-          </div>
-          <div class="form-group">
-            <label for="scale"><b>Scale</b></label>
-            <input
-              id="scale"
-              value="10"
-              type="range"
-              name="scale"
-              min="1"
-              max="10"
-            />
-          </div>
-          <div class="form-group">
-            <h3>Time Interval</h3>
-            <p id="appTimerInterval">0</p>
-          </div>
-          <div class="form-group">
-            <h3>Elapsed Time</h3>
-            <p id="appTimerElapsed">0</p>
-          </div>
-          <div class="form-group">
-            <h3>Delay Timer</h3>
-            <p id="appTimerDelay">0</p>
-          </div>
-          <div class="form-group">
-            <input type="checkbox" id="pauseBtn" aria-label="play or pause button" />
-            <label for="pauseBtn" id="pauseBtnLabel" class="pause-btn">
-              Pause
-            </label>
-          </div>
         </div>
-        <div class="tools_container">
-          <details class="keys">
-            <summary>Keys Map</summary>
-            <div class="keys__container">
-              <div>1: <b>1</b></div>
-              <div>2: <b>2</b></div>
-              <div>3: <b>3</b></div>
-              <div>4: <b>C</b></div>
-              <div>Q: <b>4</b></div>
-              <div>W: <b>5</b></div>
-              <div>E: <b>6</b></div>
-              <div>R: <b>D</b></div>
-              <div>A: <b>7</b></div>
-              <div>S: <b>8</b></div>
-              <div>D: <b>9</b></div>
-              <div>F: <b>E</b></div>
-              <div>Z: <b>A</b></div>
-              <div>X: <b>0</b></div>
-              <div>C: <b>B</b></div>
-              <div>V: <b>F</b></div>
-            </div>
-          </div>
-        </div>
-      </details>
-      <div class="canvas-container">
-        <canvas id="app"></canvas>
       </div>
     </div>
     <script type="module" src="main.js"></script>
